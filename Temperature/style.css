@@ -1,0 +1,53 @@
+#everything {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 1920px; /*100%*/
+    height: 945px; /*100%*/
+    background: linear-gradient(90deg,rgba(42, 121, 161, 1) 0%, rgba(77, 171, 118, 1) 48%, rgba(177, 209, 96, 1) 100%);
+}
+
+#box {
+    position: absolute;
+    left: 480px; /*25%*/
+    top: 236.25px; /*25%*/
+    align-items: center;
+    width: 960px; /*50%*/
+    height: 472.5px; /*50%*/
+
+    background: rgb(110, 187, 144);
+    border-radius: 2%;
+
+    box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.25);
+}
+
+p {
+    font: bold;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    position: absolute;
+    color: rgb(31, 100, 80);
+}
+
+input {
+    width: 40%;
+    height: 12%;
+
+    font: bold;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 20px;
+
+    position: absolute;
+    left: 50%;
+
+    background: rgb(126, 206, 183);
+}
+
+::placeholder {
+    font: bold;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 20px;
+    color: rgba(68, 121, 106, 0.5);
+    
+    position: absolute;
+    top: 29%;
+}
