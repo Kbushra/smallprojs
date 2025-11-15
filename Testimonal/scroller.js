@@ -1,5 +1,5 @@
 var personList = ["./People/guy1.jpg", "./People/guy2.jpg", "./People/donald.jpg"];
-var descList = ["I'm smiling because of how great this product is! With 6 or 7 cores and being version 1.6.9 I buy this!", "This product cured my eye dementia, heavily recommend.", "I'm Donald Trump don't listen to me."];
+var descList = ["I'm smiling because of how great this product is! Would definitely recommend.", "This product cured my eye dementia, heavily recommend.", "I'm Donald Trump don't listen to me."];
 var nameList = ["Guy Fawkes", "Guy IBalls", "Donald Trump"];
 
 var div = document.getElementById("box");
