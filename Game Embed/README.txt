@@ -15,5 +15,5 @@ QUALITY DUNGEON - https://html-classic.itch.zone/html/14088659/index.html
 HANGRY BIRDS - https://html-classic.itch.zone/html/13660549/hangry-birds-v1.0/index.html
 36 EGG TIMERS - https://html.itch.zone/html/13652456/birdbuild/index.html
 PAPER LAND - https://html-classic.itch.zone/html/12751475/PaperLandWebGL/index.html
-FLOUR - ttps://html-classic.itch.zone/html/12710988/Build3/index.html
+FLOUR - https://html-classic.itch.zone/html/12710988/Build3/index.html
 CAT CAFE - https://html-classic.itch.zone/html/6691622/WebGL/index.html
