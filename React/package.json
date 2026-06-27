@@ -1,0 +1,17 @@
+{
+  "name": "reactlearning",
+  "version": "1.0.0",
+  "description": "Trying to learn react",
+  "main": "index.jsx",
+  "scripts": {
+    "test": "bin\\test.bat"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  }
+}
