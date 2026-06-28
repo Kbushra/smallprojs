@@ -18,14 +18,12 @@ async function onSubmit(ev: React.SubmitEvent)
     const errorElement: HTMLElement = document.querySelector("#error")!;
     const { error } = await res.json() as { error: string };
 
-    if (error != "") { errorElement.innerText = `Error: ${error}`; }
+    if (error) { errorElement.innerText = `Error: ${error}`; }
     else
     {
         errorElement.innerText = "";
         location.pathname = "/login";
     }
-
-    console.log("signed up");
 }
 
 function SignupPage(): ReactNode

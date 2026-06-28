@@ -1,6 +1,7 @@
 import express from "express";
 import passwordManager from "argon2";
 import database from "./database.ts";
+import jwt from "jsonwebtoken";
 
 function generateHtml(scriptPath: string): string
 {
@@ -37,6 +38,11 @@ function generateHtml(scriptPath: string): string
     `;
 }
 
+function getToken(user: object): string
+{
+    return jwt.sign(user, process.env.PRIVATE_KEY as string, { algorithm: "RS256" });
+}
+
 const app: express.Express = express();
 
 app.use(express.static(process.cwd()));
@@ -60,7 +66,6 @@ app.get("/login", (req: express.Request, res: express.Response) =>
 
 app.post("/signup", async (req: express.Request, res: express.Response) =>
 {
-    console.log(req.body);
     const { name, password } = req.body as { name: string, password: string };
 
     if (!name)
@@ -75,6 +80,18 @@ app.post("/signup", async (req: express.Request, res: express.Response) =>
         return;
     }
 
+    if (name.length > 255)
+    {
+        res.json({ error: "Username too long!" });
+        return;
+    }
+
+    if (password.length > 255)
+    {
+        res.json({ error: "Password too long!" });
+        return;
+    }
+
     const existingUsers = await database.query
     (`
         SELECT name
@@ -85,18 +102,6 @@ app.post("/signup", async (req: express.Request, res: express.Response) =>
     if (existingUsers.rowCount! > 0)
     {
         res.json({ error: "Username already exists!" });
-        return;
-    }
-
-    if (name.length > 255)
-    {
-        res.json({ error: "Username too long!" });
-        return;
-    }
-
-    if (password.length > 255)
-    {
-        res.json({ error: "Password too long!" });
         return;
     }
     
@@ -113,7 +118,59 @@ app.post("/signup", async (req: express.Request, res: express.Response) =>
         VALUES ($1, $2);
     `, [name, hashPassword]);
 
-    res.json({ error: "" });
+    res.json({ error: null });
+});
+
+app.post("/login", async (req: express.Request, res: express.Response) =>
+{
+    const { name, password } = req.body as { name: string, password: string };
+
+    if (!name)
+    {
+        res.json({ error: "Invalid username!", token: null, user: null });
+        return;
+    }
+
+    if (!password)
+    {
+        res.json({ error: "Invalid password!", token: null, user: null });
+        return;
+    }
+
+    if (name.length > 255)
+    {
+        res.json({ error: "Username too long!", token: null, user: null });
+        return;
+    }
+
+    if (password.length > 255)
+    {
+        res.json({ error: "Password too long!", token: null, user: null });
+        return;
+    }
+
+    const user = await database.query
+    (`
+        SELECT *
+        FROM users
+        WHERE name = $1;
+    `, [name]);
+
+    if (user.rowCount! == 0)
+    {
+        res.json({ error: "Wrong username or password!", token: null, user: null });
+        return;
+    }
+    
+    const correctPassword: boolean = await passwordManager.verify(user.rows[0].hash_password, password);
+    if (!correctPassword)
+    {
+        res.json({ error: "Wrong username or password!", token: null, user: null });
+        return;
+    }
+
+    const publicUserInfo = { name: user.rows[0].name, click_count: user.rows[0].click_count } as { name: string, click_count: number };
+    res.json({ error: null, token: getToken(publicUserInfo), user: publicUserInfo });
 });
 
 export default app;
