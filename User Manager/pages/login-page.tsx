@@ -1,6 +1,7 @@
 import { Navbar } from "../components/navbar.js";
 import type { ReactNode } from "react";
 import { createRoot } from "react-dom/client";
+import { type UserInfo } from "../user-info.ts";
 
 async function onSubmit(ev: React.SubmitEvent)
 {
@@ -15,15 +16,15 @@ async function onSubmit(ev: React.SubmitEvent)
     });
 
     const errorElement: HTMLElement = document.querySelector("#error")!;
-    const { error, token, user } = await res.json() as { error: string, token: number, user: object };
+    const { error, token, user } = await res.json() as { error: string | null, token: string | null, user: UserInfo | null };
 
     if (error) { errorElement.innerText = `Error: ${error}`; }
     else
     {
         errorElement.innerText = "";
         location.pathname = "/";
-        localStorage.setItem("token", token.toString());
-        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("token", token!);
+        localStorage.setItem("user", JSON.stringify(user!));
     }
 }
 

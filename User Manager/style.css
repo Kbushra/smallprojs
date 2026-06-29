@@ -37,6 +37,9 @@ a:hover
 
     border: 1px solid var(--grey);
     border-radius: 5px;
+
+    z-index: 50;
+    background-color: white;
 }
 
 #navbar a

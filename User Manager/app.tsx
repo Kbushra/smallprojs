@@ -2,6 +2,8 @@ import express from "express";
 import passwordManager from "argon2";
 import database from "./database.ts";
 import jwt from "jsonwebtoken";
+import { rateLimit } from "express-rate-limit";
+import { type UserInfo } from "./user-info.ts";
 
 function generateHtml(scriptPath: string): string
 {
@@ -38,9 +40,14 @@ function generateHtml(scriptPath: string): string
     `;
 }
 
-function getToken(user: object): string
+function generateToken(user: UserInfo): string
 {
-    return jwt.sign(user, process.env.PRIVATE_KEY as string, { algorithm: "RS256" });
+    return jwt.sign(user, process.env.PRIVATE_KEY as string, { algorithm: "HS256" });
+}
+
+function parseToken(token: string): UserInfo
+{
+    return jwt.verify(token, process.env.PRIVATE_KEY as string, { algorithms: ["HS256"] }) as UserInfo;
 }
 
 const app: express.Express = express();
@@ -62,6 +69,16 @@ app.get("/signup", (req: express.Request, res: express.Response) =>
 app.get("/login", (req: express.Request, res: express.Response) =>
 {
     res.send(generateHtml("/pages_dest/login-page.js"));
+});
+
+app.get("/logout", (req: express.Request, res: express.Response) =>
+{
+    res.send(generateHtml("/pages_dest/clear.js"));
+});
+
+app.get("/delete-account", (req: express.Request, res: express.Response) =>
+{
+    res.send(generateHtml("/pages_dest/clear.js"));
 });
 
 app.post("/signup", async (req: express.Request, res: express.Response) =>
@@ -169,8 +186,25 @@ app.post("/login", async (req: express.Request, res: express.Response) =>
         return;
     }
 
-    const publicUserInfo = { name: user.rows[0].name, click_count: user.rows[0].click_count } as { name: string, click_count: number };
-    res.json({ error: null, token: getToken(publicUserInfo), user: publicUserInfo });
+    const publicUserInfo: UserInfo = { id: user.rows[0].id, name: user.rows[0].name, click_count: user.rows[0].click_count } as UserInfo;
+    res.json({ error: null, token: generateToken(publicUserInfo), user: publicUserInfo });
+});
+
+app.post("/update-score", rateLimit({ windowMs: 1000, limit: 50 }), async (req: express.Request, res: express.Response) =>
+{
+    const maxScoreUpdate: number = 10;
+    const publicUserInfo: UserInfo = parseToken(req.body.token as string);
+    if (Math.abs(req.body.score - publicUserInfo.click_count) > maxScoreUpdate) { res.send(req.body.token); return; }
+
+    await database.query
+    (`
+        UPDATE users
+        SET click_count = $1
+        WHERE id = $2;
+    `, [req.body.score, publicUserInfo.id]);
+
+    const newUserInfo: UserInfo = { id: publicUserInfo.id, name: publicUserInfo.name, click_count: req.body.score } as UserInfo;
+    res.send(generateToken(newUserInfo));
 });
 
 export default app;
