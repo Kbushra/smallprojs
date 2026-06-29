@@ -8,7 +8,10 @@ export function Navbar(): ReactNode
             <a href="/">Play</a>
             {
                 localStorage.getItem("user") ?
-                <a href="/logout">Log out</a> :
+                <>
+                    <a href="/logout">Log out</a>
+                    <a href="/delete-account">Delete account</a>
+                </> :
                 <>
                     <a href="/signup">Sign Up</a>
                     <a href="/login">Log in</a>

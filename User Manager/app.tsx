@@ -73,12 +73,22 @@ app.get("/login", (req: express.Request, res: express.Response) =>
 
 app.get("/logout", (req: express.Request, res: express.Response) =>
 {
-    res.send(generateHtml("/pages_dest/clear.js"));
+    res.send(generateHtml("/pages_dest/logout.js"));
 });
 
 app.get("/delete-account", (req: express.Request, res: express.Response) =>
 {
-    res.send(generateHtml("/pages_dest/clear.js"));
+    res.send(generateHtml("/pages_dest/delete-account.js"));
+});
+
+app.post("/delete-account", (req: express.Request, res: express.Response) =>
+{
+    const publicUserInfo: UserInfo = parseToken(req.body);
+    database.query
+    (`
+        DELETE FROM users
+        WHERE id = $1;
+    `, [publicUserInfo.id]);
 });
 
 app.post("/signup", async (req: express.Request, res: express.Response) =>
