@@ -21,9 +21,9 @@ function MainPage(): ReactNode
         //Update SQL table
         const res: Response = await fetch("/update-score",
         {
-            headers: { "Content-Type": "application/json" },
-            method: "POST",
-            body: JSON.stringify({ token: token, score: newScore } as { token: string, score: number })
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token")}` },
+            method: "PUT",
+            body: JSON.stringify({ score: newScore } as { score: number })
         });
 
         //Update token
@@ -31,8 +31,7 @@ function MainPage(): ReactNode
         localStorage.setItem("token", newToken);
 
         //Update user
-        const userStr: string = localStorage.getItem("user")!;
-        const user: UserInfo = JSON.parse(userStr)!;
+        const user: UserInfo = JSON.parse(localStorage.getItem("user")!)!;
         user.click_count = newScore;
         localStorage.setItem("user", JSON.stringify(user));
     }
@@ -45,7 +44,7 @@ function MainPage(): ReactNode
                 user ?
                 <>
                     <p style={{ marginTop: "5rem", fontSize: "5rem" }}>Welcome, {name}.</p>
-                    <p style={{ fontSize: "10rem" }} onClick={incrScore}>Clicked: {score} times<br />(saves at every 10)</p>
+                    <p style={{ fontSize: "10rem", userSelect: "none" }} onClick={incrScore}>Clicked: {score} times<br />(saves at every 10)</p>
                 </> :
                 <>
                     <p style={{ marginTop: "5rem", fontSize: "5rem" }}>Login to play!</p>

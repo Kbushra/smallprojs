@@ -1,8 +1,7 @@
 fetch("/delete-account",
 {
-    headers: { "Content-Type": "text/plain" },
-    method: "POST",
-    body: localStorage.getItem("token")
+    headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` },
+    method: "DELETE",
 }).then(() =>
 {
     localStorage.removeItem("token");

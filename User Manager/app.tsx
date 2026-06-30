@@ -1,4 +1,4 @@
-import express from "express";
+import express, { type NextFunction } from "express";
 import passwordManager from "argon2";
 import database from "./database.ts";
 import jwt from "jsonwebtoken";
@@ -81,14 +81,34 @@ app.get("/delete-account", (req: express.Request, res: express.Response) =>
     res.send(generateHtml("/pages_dest/delete-account.js"));
 });
 
-app.post("/delete-account", (req: express.Request, res: express.Response) =>
+app.use((req: express.Request, res: express.Response, next: NextFunction) =>
 {
-    const publicUserInfo: UserInfo = parseToken(req.body);
+    const auth = req.headers.authorization;
+    if (!auth || auth.split(" ").length <= 1) { next(); return; }
+
+    try 
+    {
+        res.locals.token = auth.split(" ")[1];
+        res.locals.user = parseToken(res.locals.token);
+    }
+    catch
+    {
+        res.sendStatus(401);
+        return;
+    }
+    
+    next();
+});
+
+app.delete("/delete-account", (req: express.Request, res: express.Response) =>
+{
     database.query
     (`
         DELETE FROM users
         WHERE id = $1;
-    `, [publicUserInfo.id]);
+    `, [res.locals.user.id]);
+
+    res.end();
 });
 
 app.post("/signup", async (req: express.Request, res: express.Response) =>
@@ -176,45 +196,45 @@ app.post("/login", async (req: express.Request, res: express.Response) =>
         return;
     }
 
-    const user = await database.query
+    const existingUsers = await database.query
     (`
         SELECT *
         FROM users
         WHERE name = $1;
     `, [name]);
 
-    if (user.rowCount! == 0)
+    if (existingUsers.rowCount! == 0)
     {
         res.json({ error: "Wrong username or password!", token: null, user: null });
         return;
     }
     
-    const correctPassword: boolean = await passwordManager.verify(user.rows[0].hash_password, password);
+    const userRecord = existingUsers.rows[0];
+    const correctPassword: boolean = await passwordManager.verify(userRecord.hash_password, password);
     if (!correctPassword)
     {
         res.json({ error: "Wrong username or password!", token: null, user: null });
         return;
     }
 
-    const publicUserInfo: UserInfo = { id: user.rows[0].id, name: user.rows[0].name, click_count: user.rows[0].click_count } as UserInfo;
-    res.json({ error: null, token: generateToken(publicUserInfo), user: publicUserInfo });
+    const user: UserInfo = { id: userRecord.id, name: userRecord.name, click_count: userRecord.click_count } as UserInfo;
+    res.json({ error: null, token: generateToken(user), user: user });
 });
 
-app.post("/update-score", rateLimit({ windowMs: 1000, limit: 50 }), async (req: express.Request, res: express.Response) =>
+app.put("/update-score", rateLimit({ windowMs: 1000, limit: 50 }), async (req: express.Request, res: express.Response) =>
 {
     const maxScoreUpdate: number = 10;
-    const publicUserInfo: UserInfo = parseToken(req.body.token as string);
-    if (Math.abs(req.body.score - publicUserInfo.click_count) > maxScoreUpdate) { res.send(req.body.token); return; }
+    if (Math.abs(req.body.score - res.locals.user.click_count) > maxScoreUpdate) { res.send(res.locals.token); return; }
 
     await database.query
     (`
         UPDATE users
         SET click_count = $1
         WHERE id = $2;
-    `, [req.body.score, publicUserInfo.id]);
+    `, [req.body.score, res.locals.user.id]);
 
-    const newUserInfo: UserInfo = { id: publicUserInfo.id, name: publicUserInfo.name, click_count: req.body.score } as UserInfo;
-    res.send(generateToken(newUserInfo));
+    const updatedUser: UserInfo = { id: res.locals.user.id, name: res.locals.user.name, click_count: req.body.score } as UserInfo;
+    res.send(generateToken(updatedUser));
 });
 
 export default app;
