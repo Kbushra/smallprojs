@@ -30,6 +30,7 @@ function generateHtml(scriptPath: string): string
                 <title>User Manager</title>
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+                <link href='https://fonts.googleapis.com/css?family=Geist' rel='stylesheet'>
                 <link rel="stylesheet" href="/style.css" />
             </head>
             <body>

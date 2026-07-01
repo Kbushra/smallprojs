@@ -1,24 +1,39 @@
 :root
 {
-    font-family: Roboto, sans-serif;
-    font-size: 16px;
+    font-family: Geist, "Geist Fallback", sans-serif;
+    font-size: 8px;
 
-    --dark-grey: rgb(22, 22, 22);
-    --grey: rgb(58, 58, 58);
-    --blue-highlight: rgb(0, 142, 167);
+    --dark1: #050505;
+    --dark2: #0B0B0B;
+    --light1: #FEFEFE;
+    --accent1: #3595a7;
 
     overflow-x: clip;
+
+    background-color: var(--dark2);
+}
+
+body { margin: 0; }
+
+h2
+{
+    font-size: 6rem;
+    font-weight: 600;
+}
+
+p, a, s, h6, h5, h4, h3, h2, h1
+{
+    color: var(--light1);
 }
 
 a
 {
-    color: var(--dark-grey);
     transition: color 0.2s cubic-bezier(0.1, 0.9, 1, 1);
 }
 
 a:hover
 {
-    color: var(--blue-highlight);
+    color: var(--accent1);
 }
 
 #navbar
@@ -26,29 +41,29 @@ a:hover
     position: sticky;
     left: 0;
     top: 0;
-    width: calc(100vw - 1rem);
+    width: 100vw;
     height: 4rem;
 
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-    gap: 2rem;
-
-    border: 1px solid var(--grey);
-    border-radius: 5px;
+    gap: 3rem;
 
     z-index: 50;
-    background-color: white;
+    border-bottom: 2px solid var(--dark1);
+
+    padding: 1rem 1rem;
+    padding-left: 4rem;
 }
 
 #navbar a
 {
-    padding-left: 1rem;
+    margin: 0;
     font-size: 2rem;
 }
 
-.centered-body
+#root
 {
     width: 100vw;
     display: flex;

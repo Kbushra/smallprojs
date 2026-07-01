@@ -39,19 +39,17 @@ function MainPage(): ReactNode
     return (
     <>
         <Navbar />
-        <div className="centered-body">
-            {
-                user ?
-                <>
-                    <p style={{ marginTop: "5rem", fontSize: "5rem" }}>Welcome, {name}.</p>
-                    <p style={{ fontSize: "10rem", userSelect: "none" }} onClick={incrScore}>Clicked: {score} times<br />(saves at every 10)</p>
-                </> :
-                <>
-                    <p style={{ marginTop: "5rem", fontSize: "5rem" }}>Login to play!</p>
-                    <s style={{ fontSize: "10rem" }}>Click me!</s>
-                </>
-            }
-        </div>
+        {
+            user ?
+            <>
+                <h2 style={{ marginTop: "15rem" }}>Welcome, {name}.</h2>
+                <p style={{ fontSize: "10rem", userSelect: "none" }} onClick={incrScore}>Clicked: {score} times<br />(saves at every 10)</p>
+            </> :
+            <>
+                <h2 style={{ marginTop: "15rem" }}>Login to play!</h2>
+                <s style={{ fontSize: "10rem" }}>Click me!</s>
+            </>
+        }
     </>);
 }
 

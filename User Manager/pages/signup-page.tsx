@@ -31,14 +31,12 @@ function SignupPage(): ReactNode
     return (
     <>
         <Navbar />
-        <div className="centered-body">
-            <form onSubmit={onSubmit}>
-                <input name="name" placeholder="Name" />
-                <input name="password" placeholder="Password" type="password" />
-                <button type="submit">Sign Up!</button>
-            </form>
-            <p id="error"></p>
-        </div>
+        <form onSubmit={onSubmit}>
+            <input name="name" placeholder="Name" />
+            <input name="password" placeholder="Password" type="password" />
+            <button type="submit">Sign Up!</button>
+        </form>
+        <p id="error"></p>
     </>);
 }
 

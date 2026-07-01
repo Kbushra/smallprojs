@@ -33,14 +33,12 @@ function LoginPage(): ReactNode
     return (
     <>
         <Navbar />
-        <div className="centered-body">
-            <form onSubmit={onSubmit}>
-                <input placeholder="Name" name="name" />
-                <input placeholder="Password" type="password" name="password" />
-                <button type="submit">Log in!</button>
-            </form>
-            <p id="error"></p>
-        </div>
+        <form onSubmit={onSubmit}>
+            <input placeholder="Name" name="name" />
+            <input placeholder="Password" type="password" name="password" />
+            <button type="submit">Log in!</button>
+        </form>
+        <p id="error"></p>
     </>);
 }
 
