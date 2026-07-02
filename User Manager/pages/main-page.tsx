@@ -1,4 +1,5 @@
 import { Navbar } from "../components/navbar.js";
+import { IconText } from "../components/icon-text.tsx";
 import { useState, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { type UserInfo } from "../user-info.ts";
@@ -39,17 +40,29 @@ function MainPage(): ReactNode
     return (
     <>
         <Navbar />
-        {
-            user ?
-            <>
-                <h2 style={{ marginTop: "15rem" }}>Welcome, {name}.</h2>
-                <p style={{ fontSize: "10rem", userSelect: "none" }} onClick={incrScore}>Clicked: {score} times<br />(saves at every 10)</p>
-            </> :
-            <>
-                <h2 style={{ marginTop: "15rem" }}>Login to play!</h2>
-                <s style={{ fontSize: "10rem" }}>Click me!</s>
-            </>
-        }
+        <div id="centered-page">
+            <div className="panel">
+                {
+                    user ?
+                    <h2>Welcome, {name}.</h2> :
+                    <div className="pill"><IconText link="/assets/images/warning.png" text="You must login to play" /></div>
+                }
+                <p>Play an innovative game where you click the text a lot of times.</p>
+
+                <div style={{ position: "relative", display: "flex", flexDirection: "row", justifyContent: "center", marginTop: "1rem" }} onClick={user ? incrScore : () => {}}>
+                    {
+                        user ?
+                        <>
+                            <img src="/assets/images/button.png" style={{ height: "22rem" }} />
+                            <p style={{ position: "absolute", top: "9rem" }}>Clicked: {score} times<br />(saves at every 10)</p>
+                        </> :
+                        <>
+                            <img src="/assets/images/buttonlocked.png" style={{ height: "22rem" }} />
+                        </>
+                    }
+                </div>
+            </div>
+        </div>
     </>);
 }
 
