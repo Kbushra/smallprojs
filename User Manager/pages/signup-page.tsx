@@ -1,6 +1,5 @@
 import { Navbar } from "../components/navbar.js";
 import type { ReactNode } from "react";
-import { useEffect } from "react";
 import { createRoot } from "react-dom/client";
 
 async function onSubmit(ev: React.SubmitEvent)
@@ -31,12 +30,19 @@ function SignupPage(): ReactNode
     return (
     <>
         <Navbar />
-        <form onSubmit={onSubmit}>
-            <input name="name" placeholder="Name" />
-            <input name="password" placeholder="Password" type="password" />
-            <button type="submit">Sign Up!</button>
-        </form>
-        <p id="error"></p>
+        <div id="centered-page">
+            <h1>Sign Up</h1>
+            <div className="break-line"></div>
+            <div className="panel">
+                <p>Create your account:</p>
+                <form onSubmit={onSubmit}>
+                    <input name="name" placeholder="Name" />
+                    <input name="password" placeholder="Password" type="password" />
+                    <button type="submit">Submit</button>
+                </form>
+                <p id="error"></p>
+            </div>
+        </div>
     </>);
 }
 

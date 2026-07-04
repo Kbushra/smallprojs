@@ -59,27 +59,27 @@ app.use(express.json());
 
 app.get("/", (req: express.Request, res: express.Response) =>
 {
-    res.send(generateHtml("/pages_dest/main-page.js"));
+    res.status(200).send(generateHtml("/pages_dest/main-page.js"));
 });
 
 app.get("/signup", (req: express.Request, res: express.Response) =>
 {
-    res.send(generateHtml("/pages_dest/signup-page.js"));
+    res.status(200).send(generateHtml("/pages_dest/signup-page.js"));
 });
 
 app.get("/login", (req: express.Request, res: express.Response) =>
 {
-    res.send(generateHtml("/pages_dest/login-page.js"));
+    res.status(200).send(generateHtml("/pages_dest/login-page.js"));
 });
 
-app.get("/logout", (req: express.Request, res: express.Response) =>
+app.get("/settings", (req: express.Request, res: express.Response) =>
 {
-    res.send(generateHtml("/pages_dest/logout.js"));
+    res.status(200).send(generateHtml("/pages_dest/settings-page.js"));
 });
 
-app.get("/delete-account", (req: express.Request, res: express.Response) =>
+app.get("/*path", (req: express.Request, res: express.Response) =>
 {
-    res.send(generateHtml("/pages_dest/delete-account.js"));
+    res.status(200).send(generateHtml("/pages_dest/main-page.js"));
 });
 
 app.use((req: express.Request, res: express.Response, next: NextFunction) =>
@@ -103,40 +103,43 @@ app.use((req: express.Request, res: express.Response, next: NextFunction) =>
 
 app.delete("/delete-account", (req: express.Request, res: express.Response) =>
 {
+    console.log(`Deleting user ${res.locals.user.name}`);
+
     database.query
     (`
         DELETE FROM users
         WHERE id = $1;
     `, [res.locals.user.id]);
 
-    res.end();
+    res.sendStatus(204);
 });
 
 app.post("/signup", async (req: express.Request, res: express.Response) =>
 {
     const { name, password } = req.body as { name: string, password: string };
+    console.log(`Signing up as ${name}`);
 
     if (!name)
     {
-        res.json({ error: "Invalid username!" });
+        res.status(403).json({ error: "Invalid username!" });
         return;
     }
 
     if (!password)
     {
-        res.json({ error: "Invalid password!" });
+        res.status(403).json({ error: "Invalid password!" });
         return;
     }
 
     if (name.length > 255)
     {
-        res.json({ error: "Username too long!" });
+        res.status(403).json({ error: "Username too long!" });
         return;
     }
 
     if (password.length > 255)
     {
-        res.json({ error: "Password too long!" });
+        res.status(403).json({ error: "Password too long!" });
         return;
     }
 
@@ -149,14 +152,14 @@ app.post("/signup", async (req: express.Request, res: express.Response) =>
 
     if (existingUsers.rowCount! > 0)
     {
-        res.json({ error: "Username already exists!" });
+        res.status(403).json({ error: "Username already exists!" });
         return;
     }
     
     const hashPassword: string = await passwordManager.hash(password);
     if (!hashPassword)
     {
-        res.json({ error: "Invalid password!" });
+        res.status(403).json({ error: "Invalid password!" });
         return;
     }
 
@@ -166,34 +169,35 @@ app.post("/signup", async (req: express.Request, res: express.Response) =>
         VALUES ($1, $2);
     `, [name, hashPassword]);
 
-    res.json({ error: null });
+    res.status(201).json({ error: null });
 });
 
 app.post("/login", async (req: express.Request, res: express.Response) =>
 {
     const { name, password } = req.body as { name: string, password: string };
+    console.log(`Logging in as ${name}`);
 
-    if (!name)
+    if (name === "")
     {
-        res.json({ error: "Invalid username!", token: null, user: null });
+        res.status(403).json({ error: "Empty username!", token: null, user: null });
         return;
     }
 
-    if (!password)
+    if (password === "")
     {
-        res.json({ error: "Invalid password!", token: null, user: null });
+        res.status(403).json({ error: "Empty password!", token: null, user: null });
         return;
     }
 
     if (name.length > 255)
     {
-        res.json({ error: "Username too long!", token: null, user: null });
+        res.status(403).json({ error: "Username too long!", token: null, user: null });
         return;
     }
 
     if (password.length > 255)
     {
-        res.json({ error: "Password too long!", token: null, user: null });
+        res.status(403).json({ error: "Password too long!", token: null, user: null });
         return;
     }
 
@@ -204,9 +208,9 @@ app.post("/login", async (req: express.Request, res: express.Response) =>
         WHERE name = $1;
     `, [name]);
 
-    if (existingUsers.rowCount! == 0)
+    if (existingUsers.rowCount! === 0)
     {
-        res.json({ error: "Wrong username or password!", token: null, user: null });
+        res.status(403).json({ error: "Wrong username or password!", token: null, user: null });
         return;
     }
     
@@ -214,28 +218,67 @@ app.post("/login", async (req: express.Request, res: express.Response) =>
     const correctPassword: boolean = await passwordManager.verify(userRecord.hash_password, password);
     if (!correctPassword)
     {
-        res.json({ error: "Wrong username or password!", token: null, user: null });
+        res.status(403).json({ error: "Wrong username or password!", token: null, user: null });
         return;
     }
 
     const user: UserInfo = { id: userRecord.id, name: userRecord.name, click_count: userRecord.click_count } as UserInfo;
-    res.json({ error: null, token: generateToken(user), user: user });
+    res.status(200).json({ error: null, token: generateToken(user), user: user });
 });
 
-app.put("/update-score", rateLimit({ windowMs: 1000, limit: 50 }), async (req: express.Request, res: express.Response) =>
+app.put("/update-user", rateLimit({ windowMs: 1000, limit: 50 }), async (req: express.Request, res: express.Response) =>
 {
     const maxScoreUpdate: number = 10;
-    if (Math.abs(req.body.score - res.locals.user.click_count) > maxScoreUpdate) { res.send(res.locals.token); return; }
+    const user = res.locals.user as UserInfo;
+    const newUser = req.body as UserInfo;
+    console.log(`Updating user ${newUser.name}`);
+
+    if (Math.abs(newUser.click_count - user.click_count) > maxScoreUpdate || newUser.id != user.id)
+    {
+        res.status(403).json({ error: "Illegal user modification!", token: null });
+        return;
+    }
+
+    const existingUsers = await database.query
+    (`
+        SELECT *
+        FROM users
+        WHERE name = $1;
+    `, [newUser.name]);
+
+    if (newUser.name === "")
+    {
+        res.status(403).json({ error: "Empty username!", token: null });
+        return;
+    }
+
+    if (newUser.name != user.name && existingUsers.rowCount! > 0)
+    {
+        res.status(403).json({ error: "Name already in use!", token: null });
+        return;
+    }
 
     await database.query
     (`
         UPDATE users
-        SET click_count = $1
-        WHERE id = $2;
-    `, [req.body.score, res.locals.user.id]);
+        SET name = $1, click_count = $2
+        WHERE id = $3;
+    `, [newUser.name, newUser.click_count, newUser.id]);
+    
+    if (newUser.password)
+    {
+        const hashPassword: string = await passwordManager.hash(newUser.password);
+        await database.query
+        (`
+            UPDATE users
+            SET hash_password = $1
+            WHERE id = $2;
+        `, [hashPassword, newUser.id]);
 
-    const updatedUser: UserInfo = { id: res.locals.user.id, name: res.locals.user.name, click_count: req.body.score } as UserInfo;
-    res.send(generateToken(updatedUser));
+        delete newUser.password;
+    }
+
+    res.status(200).json({ error: null, token: generateToken(newUser) });
 });
 
 export default app;

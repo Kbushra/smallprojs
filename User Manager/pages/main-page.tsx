@@ -1,64 +1,63 @@
 import { Navbar } from "../components/navbar.js";
-import { IconText } from "../components/icon-text.tsx";
 import { useState, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { type UserInfo } from "../user-info.ts";
+import { Tabclick } from "../tabclick.ts";
+import { ObserveScalableText } from "../scaletext.ts";
 
 function MainPage(): ReactNode
 {
-    const token: string | null = localStorage.getItem("token");
     const userStr: string | null = localStorage.getItem("user");
     const user: UserInfo | null | undefined = userStr ? JSON.parse(userStr) : null;
 
     const [name, changeName] = useState(user ? user.name : "");
     const [score, changeScore] = useState(user ? user.click_count : 0);
 
-    async function incrScore()
+    async function IncrScore()
     {
         const newScore = score + 1;
         changeScore(newScore);
-        if (newScore % 10 != 0) { return; }
-
-        //Update SQL table
-        const res: Response = await fetch("/update-score",
-        {
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token")}` },
-            method: "PUT",
-            body: JSON.stringify({ score: newScore } as { score: number })
-        });
-
-        //Update token
-        const newToken = await res.text();
-        localStorage.setItem("token", newToken);
-
-        //Update user
+        
         const user: UserInfo = JSON.parse(localStorage.getItem("user")!)!;
         user.click_count = newScore;
         localStorage.setItem("user", JSON.stringify(user));
+
+        if (newScore % 10 != 0) { return; }
+
+        //Update SQL table
+        const res: Response = await fetch("/update-user",
+        {
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token")}` },
+            method: "PUT",
+            body: JSON.stringify(user)
+        });
+
+        const { error, token } = await res.json();
+        if (!error) { localStorage.setItem("token", token); }
     }
 
     return (
     <>
         <Navbar />
         <div id="centered-page">
+            <h1>Play</h1>
+            <div className="break-line"></div>
             <div className="panel">
                 {
                     user ?
                     <h2>Welcome, {name}.</h2> :
-                    <div className="pill"><IconText link="/assets/images/warning.png" text="You must login to play" /></div>
+                    <div className="pill row-flex">
+                        <img src="/assets/images/warning.png" style={{ height: "3rem" }} />
+                        <p>You must login to play</p>
+                    </div>
                 }
                 <p>Play an innovative game where you click the text a lot of times.</p>
 
-                <div style={{ position: "relative", display: "flex", flexDirection: "row", justifyContent: "center", marginTop: "1rem" }} onClick={user ? incrScore : () => {}}>
+                <div className="clicker-button" style={{ backgroundImage: `url(${user ? "./assets/images/button.png" : "./assets/images/buttonlocked.png"})` }}
+                onClick={user ? IncrScore : () => {}} onKeyDown={(ev) => Tabclick(ev, user ? IncrScore : () => {})} tabIndex={0}>
                     {
-                        user ?
-                        <>
-                            <img src="/assets/images/button.png" style={{ height: "22rem" }} />
-                            <p style={{ position: "absolute", top: "9rem" }}>Clicked: {score} times<br />(saves at every 10)</p>
-                        </> :
-                        <>
-                            <img src="/assets/images/buttonlocked.png" style={{ height: "22rem" }} />
-                        </>
+                        user ? <h1 className="scalable-text" style={{ maxWidth: "18rem", pointerEvents: "none" }}>{score}</h1>
+                        : <></>
                     }
                 </div>
             </div>
@@ -67,3 +66,4 @@ function MainPage(): ReactNode
 }
 
 createRoot(document.querySelector("#root")!).render(<MainPage />);
+ObserveScalableText();

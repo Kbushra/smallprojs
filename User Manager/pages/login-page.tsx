@@ -31,15 +31,22 @@ async function onSubmit(ev: React.SubmitEvent)
 function LoginPage(): ReactNode
 {
     return (
-    <>
-        <Navbar />
-        <form onSubmit={onSubmit}>
-            <input placeholder="Name" name="name" />
-            <input placeholder="Password" type="password" name="password" />
-            <button type="submit">Log in!</button>
-        </form>
-        <p id="error"></p>
-    </>);
+        <>
+            <Navbar />
+            <div id="centered-page">
+                <h1>Log In</h1>
+                <div className="break-line"></div>
+                <div className="panel">
+                    <p>Create your account:</p>
+                    <form onSubmit={onSubmit}>
+                        <input name="name" placeholder="Name" />
+                        <input name="password" placeholder="Password" type="password" />
+                        <button type="submit">Submit</button>
+                    </form>
+                    <p id="error"></p>
+                </div>
+            </div>
+        </>);
 }
 
 createRoot(document.querySelector("#root")!).render(<LoginPage />);
