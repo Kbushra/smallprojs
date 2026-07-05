@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../pages/delete-account.tsx"],
-  "sourcesContent": ["fetch(\"/delete-account\",\r\n{\r\n    headers: { \"Authorization\": `Bearer ${localStorage.getItem(\"token\")}` },\r\n    method: \"DELETE\",\r\n}).then(() =>\r\n{\r\n    localStorage.removeItem(\"token\");\r\n    localStorage.removeItem(\"user\");\r\n    location.pathname = \"/\";\r\n});"],
-  "mappings": "AAAA,MAAM,kBACN,CACI,QAAS,CAAE,cAAiB,UAAU,aAAa,QAAQ,OAAO,CAAC,EAAG,EACtE,OAAQ,QACZ,CAAC,EAAE,KAAK,IACR,CACI,aAAa,WAAW,OAAO,EAC/B,aAAa,WAAW,MAAM,EAC9B,SAAS,SAAW,GACxB,CAAC",
-  "names": []
-}

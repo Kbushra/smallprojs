@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../pages/logout.tsx"],
-  "sourcesContent": ["localStorage.removeItem(\"token\");\r\nlocalStorage.removeItem(\"user\");\r\nlocation.pathname = \"/\";"],
-  "mappings": "AAAA,aAAa,WAAW,OAAO,EAC/B,aAAa,WAAW,MAAM,EAC9B,SAAS,SAAW",
-  "names": []
-}
